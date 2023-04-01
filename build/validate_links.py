@@ -13,13 +13,12 @@ def parse_links(filename):
     raw_links = re.findall(
         'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
         data)
-    links = [raw_link.replace(')', '') for raw_link in raw_links]
-    return links
+    return [raw_link.replace(')', '') for raw_link in raw_links]
 
 
 def validate_links(links):
     """Checks each entry in JSON file for live link"""
-    print('Validating {} links...'.format(len(links)))
+    print(f'Validating {len(links)} links...')
     errors = []
     for link in links:
         h = httplib2.Http(disable_ssl_certificate_validation=True, timeout=5)
@@ -28,11 +27,11 @@ def validate_links(links):
             code = int(resp[0]['status'])
             # check if status code is a client or server error
             if code >= 404:
-                errors.append('{}: {}'.format(code, link))
+                errors.append(f'{code}: {link}')
         except TimeoutError:
-            errors.append("TMO: " + link)
+            errors.append(f"TMO: {link}")
         except socket.error as socketerror:
-            errors.append("SOC: {} : {}".format(socketerror, link))
+            errors.append(f"SOC: {socketerror} : {link}")
     return errors
 
 
